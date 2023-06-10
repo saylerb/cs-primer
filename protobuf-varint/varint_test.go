@@ -29,10 +29,27 @@ func TestReadBinaryFileToInteger(t *testing.T) {
 		}
 	})
 
-	t.Run("read a binary unsigned 64 bit integer to a decimal", func(t *testing.T) {
+	t.Run("read uint64 one from binary file", func(t *testing.T) {
 		got := ReadBinaryFileToInteger("1.uint64")
 		var want uint64 = 1
 
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+
+	t.Run("read uint64 150 from binary file", func(t *testing.T) {
+		got := ReadBinaryFileToInteger("150.uint64")
+		var want uint64 = 150
+
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+
+	t.Run("read max unint64 from binary file", func(t *testing.T) {
+		got := ReadBinaryFileToInteger("maxint.uint64")
+		var want uint64 = 18446744073709551615
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
 		}
