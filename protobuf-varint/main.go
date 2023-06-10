@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -21,7 +22,10 @@ func ReadBinaryFileToInteger(filename string) uint64 {
 }
 
 func BtoI(theSlice []byte) uint64 {
-	return binary.BigEndian.Uint64(theSlice)
+	var result uint64
+	buffer := bytes.NewReader(theSlice)
+	binary.Read(buffer, binary.BigEndian, &result)
+	return result
 }
 
 func ScanIntoByteSlice(fileName string) []byte {
