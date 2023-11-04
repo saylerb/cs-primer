@@ -9,12 +9,18 @@ import (
 	"os"
 )
 
-func Hello() string {
-	return "Hello, World!"
-}
-
 func main() {
-	fmt.Println(Hello())
+	files := []string{"1.uint64", "150.uint64", "maxint.uint64"}
+	for _, file := range files {
+		bytes := ScanIntoByteSlice(file)
+		int := BtoI(bytes)
+		fmt.Printf("%v input as bytes: %x, input as decimal number: %v\n", file, bytes, int)
+		encoded := Encode(int)
+		fmt.Printf("%v encoded as protobuf varint: %x\n", file, encoded)
+		decoded := Decode(encoded)
+		fmt.Printf("%v varint decoded as uint64: %v\n", file, decoded)
+		fmt.Println("------\n", file, decoded)
+	}
 }
 
 func Encode(input uint64) []byte {
@@ -42,26 +48,15 @@ func Decode(bytes []byte) uint64 {
 	var currentByteIndex = 0
 	for moreBytes {
 		currentByte := bytes[currentByteIndex]
-		//fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
 		mostSignificantBit := currentByte & 0x80
-		//fmt.Printf("mask bit: %b\n", 0x80)
-		//fmt.Printf("mostSignificant bit: %b\n", mostSignificantBit)
 		if mostSignificantBit != 0x80 {
 			moreBytes = false
-			//fmt.Printf("setting moreBytes to %v\n", moreBytes)
-
 		}
-		//fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
 		withoutContinuation := currentByte & 0x7f // drop the continuation bit
-		//fmt.Printf("after dropping continuation bit: %b\n", withoutContinuation)
 		leastSignificantBit := withoutContinuation & 0x01
-		//fmt.Printf("leastSignificantBit: %b\n", leastSignificantBit)
 		leastSignificantBit = leastSignificantBit << 7
-		//fmt.Printf("leastSignificantBit after shifting: %b\n", leastSignificantBit)
 		if lastByte > 0 {
 			combined := lastByte | leastSignificantBit
-			//fmt.Printf("last byte: %b\n", lastByte)
-			//fmt.Printf("combined after shifting: %b\n", combined)
 			reversed = append(reversed, combined)
 		} else if !moreBytes {
 			reversed = append(reversed, withoutContinuation)
@@ -69,9 +64,6 @@ func Decode(bytes []byte) uint64 {
 		lastByte = withoutContinuation
 		currentByteIndex = currentByteIndex + 1
 	}
-
-	//fmt.Printf("result: %b\n", reversed)
-
 	return BtoI(reversed)
 }
 
