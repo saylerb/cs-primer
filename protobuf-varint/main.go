@@ -47,7 +47,14 @@ func ItoB(num uint64) []byte {
 
 func BtoI(theSlice []byte) uint64 {
 	var result uint64
-	buffer := bytes.NewReader(theSlice)
+
+	var padded []byte
+	for i := 0; i <= 7-len(theSlice); i++ {
+		padded = append(padded, 0)
+	}
+	padded = append(padded, theSlice...)
+
+	buffer := bytes.NewReader(padded)
 	binary.Read(buffer, binary.BigEndian, &result)
 	return result
 }

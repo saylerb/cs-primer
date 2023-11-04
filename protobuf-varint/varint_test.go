@@ -28,6 +28,14 @@ func TestReadBinaryFileToInteger(t *testing.T) {
 			t.Errorf("got %q want %q", got, want)
 		}
 	})
+	t.Run("be able to convert a byte array less than 8 bytes to a 64 bit integer", func(t *testing.T) {
+		got := BtoI([]byte{0x96})
+		var want uint64 = 150
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+
+	})
 
 	t.Run("be able to convert integer to byte slice", func(t *testing.T) {
 		var one uint64 = 1
