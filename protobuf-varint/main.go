@@ -42,26 +42,26 @@ func Decode(bytes []byte) uint64 {
 	var currentByteIndex = 0
 	for moreBytes {
 		currentByte := bytes[currentByteIndex]
-		fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
+		//fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
 		mostSignificantBit := currentByte & 0x80
-		fmt.Printf("mask bit: %b\n", 0x80)
-		fmt.Printf("mostSignificant bit: %b\n", mostSignificantBit)
+		//fmt.Printf("mask bit: %b\n", 0x80)
+		//fmt.Printf("mostSignificant bit: %b\n", mostSignificantBit)
 		if mostSignificantBit != 0x80 {
 			moreBytes = false
-			fmt.Printf("setting moreBytes to %v\n", moreBytes)
+			//fmt.Printf("setting moreBytes to %v\n", moreBytes)
 
 		}
-		fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
+		//fmt.Printf("index: %v, bytes: %b\n", currentByteIndex, currentByte)
 		withoutContinuation := currentByte & 0x7f // drop the continuation bit
-		fmt.Printf("after dropping continuation bit: %b\n", withoutContinuation)
+		//fmt.Printf("after dropping continuation bit: %b\n", withoutContinuation)
 		leastSignificantBit := withoutContinuation & 0x01
-		fmt.Printf("leastSignificantBit: %b\n", leastSignificantBit)
+		//fmt.Printf("leastSignificantBit: %b\n", leastSignificantBit)
 		leastSignificantBit = leastSignificantBit << 7
-		fmt.Printf("leastSignificantBit after shifting: %b\n", leastSignificantBit)
+		//fmt.Printf("leastSignificantBit after shifting: %b\n", leastSignificantBit)
 		if lastByte > 0 {
 			combined := lastByte | leastSignificantBit
-			fmt.Printf("last byte: %b\n", lastByte)
-			fmt.Printf("combined after shifting: %b\n", combined)
+			//fmt.Printf("last byte: %b\n", lastByte)
+			//fmt.Printf("combined after shifting: %b\n", combined)
 			reversed = append(reversed, combined)
 		} else if !moreBytes {
 			reversed = append(reversed, withoutContinuation)
@@ -70,7 +70,7 @@ func Decode(bytes []byte) uint64 {
 		currentByteIndex = currentByteIndex + 1
 	}
 
-	fmt.Printf("result: %b\n", reversed)
+	//fmt.Printf("result: %b\n", reversed)
 
 	return BtoI(reversed)
 }

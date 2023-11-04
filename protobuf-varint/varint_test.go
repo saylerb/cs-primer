@@ -9,7 +9,6 @@ func TestReadBinaryFileToInteger(t *testing.T) {
 	t.Run("test comparing two byte slices", func(t *testing.T) {
 		one := []byte{1, 2, 3}
 		two := []byte{1, 2, 3}
-
 		compareByteSlices(t, one, two)
 	})
 
@@ -23,32 +22,29 @@ func TestReadBinaryFileToInteger(t *testing.T) {
 		u64bitIntOne := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1}
 		got := BtoI(u64bitIntOne)
 		var want uint64 = 1
-
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
 		}
 	})
+
 	t.Run("be able to convert a byte array less than 8 bytes to a 64 bit integer", func(t *testing.T) {
 		got := BtoI([]byte{0x96})
 		var want uint64 = 150
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
 		}
-
 	})
 
 	t.Run("be able to convert integer to byte slice", func(t *testing.T) {
 		var one uint64 = 1
 		want := []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1}
 		got := ItoB(one)
-
 		compareByteSlices(t, got, want)
 	})
 
 	t.Run("read uint64 one from binary file", func(t *testing.T) {
 		got := ReadBinaryFileToInteger("1.uint64")
 		var want uint64 = 1
-
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
 		}
@@ -57,7 +53,6 @@ func TestReadBinaryFileToInteger(t *testing.T) {
 	t.Run("read uint64 150 from binary file", func(t *testing.T) {
 		got := ReadBinaryFileToInteger("150.uint64")
 		var want uint64 = 150
-
 		if got != want {
 			t.Errorf("got %q want %q", got, want)
 		}
