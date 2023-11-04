@@ -91,6 +91,30 @@ func TestEncodingVarint(t *testing.T) {
 	})
 }
 
+func TestDecodingVarint(t *testing.T) {
+	t.Run("can decode the number 150", func(t *testing.T) {
+		got := Decode([]byte{0x96, 0x01})
+		var want uint64 = 150
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+	t.Run("can decode the number 1", func(t *testing.T) {
+		got := Decode([]byte{0x01})
+		var want uint64 = 1
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+	t.Run("can decode max int 1", func(t *testing.T) {
+		got := Decode([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01})
+		var want uint64 = 18446744073709551615
+		if got != want {
+			t.Errorf("got %q want %q", got, want)
+		}
+	})
+}
+
 func compareByteSlices(t testing.TB, got, want []byte) {
 	t.Helper()
 	if !bytes.Equal(got, want) {
