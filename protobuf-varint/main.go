@@ -18,20 +18,20 @@ func main() {
 }
 
 func Encode(input uint64) []byte {
-	var mask uint64 = 0x7f // 0b01111111 least significant 7 bits
+	var bitMask uint64 = 0x7f // 0b01111111 least significant 7 bits
 	buffer := new(bytes.Buffer)
 
 	for input > 0 {
-		lowestSevenBits := uint8(input & mask)
-		if input > 0x7F {
-			withContinuationBit := lowestSevenBits | 0x80
+		lowestSevenBits := uint8(input & bitMask)
+		if input > bitMask {
+			var eighthBitOnMask uint8 = 0x80
+			withContinuationBit := lowestSevenBits | eighthBitOnMask
 			binary.Write(buffer, binary.BigEndian, withContinuationBit)
 		} else {
 			binary.Write(buffer, binary.BigEndian, lowestSevenBits)
 		}
 		input = input >> 7
 	}
-
 	return buffer.Bytes()
 }
 
