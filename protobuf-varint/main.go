@@ -43,25 +43,26 @@ func Encode(input uint64) []byte {
 
 func Decode(bytes []byte) uint64 {
 	var reversed []byte
-	var lastByte byte
+	var previousByte byte
 	var moreBytes = true
 	var currentByteIndex = 0
+	var continuationBitOnMask byte = 0x80
 	for moreBytes {
 		currentByte := bytes[currentByteIndex]
-		mostSignificantBit := currentByte & 0x80
-		if mostSignificantBit != 0x80 {
+		mostSignificantBit := currentByte & continuationBitOnMask
+		if mostSignificantBit != continuationBitOnMask {
 			moreBytes = false
 		}
-		withoutContinuation := currentByte & 0x7f // drop the continuation bit
-		leastSignificantBit := withoutContinuation & 0x01
-		leastSignificantBit = leastSignificantBit << 7
-		if lastByte > 0 {
-			combined := lastByte | leastSignificantBit
+		currentByteWithoutContinuationBit := currentByte & 0x7f                // set the continuation bit to zero
+		currentLeastSignificantBit := currentByteWithoutContinuationBit & 0x01 // take the least significant bit
+		if previousByte > 0 {
+			// set the most significant bit on previous byte to value of current least significant bit
+			combined := previousByte | (currentLeastSignificantBit << 7)
 			reversed = append(reversed, combined)
 		} else if !moreBytes {
-			reversed = append(reversed, withoutContinuation)
+			reversed = append(reversed, currentByteWithoutContinuationBit)
 		}
-		lastByte = withoutContinuation
+		previousByte = currentByteWithoutContinuationBit
 		currentByteIndex = currentByteIndex + 1
 	}
 	return BtoI(reversed)
