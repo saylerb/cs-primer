@@ -41,31 +41,17 @@ func Encode(input uint64) []byte {
 	return buffer.Bytes()
 }
 
-func Decode(bytes []byte) uint64 {
-	var reversed []byte
-	var previousByte byte
-	var moreBytes = true
-	var currentByteIndex = 0
-	var continuationBitOnMask byte = 0x80
-	for moreBytes {
-		currentByte := bytes[currentByteIndex]
-		mostSignificantBit := currentByte & continuationBitOnMask
-		if mostSignificantBit != continuationBitOnMask {
-			moreBytes = false
-		}
-		currentByteWithoutContinuationBit := currentByte & 0x7f                // set the continuation bit to zero
-		currentLeastSignificantBit := currentByteWithoutContinuationBit & 0x01 // take the least significant bit
-		if previousByte > 0 {
-			// set the most significant bit on previous byte to value of current least significant bit
-			combined := previousByte | (currentLeastSignificantBit << 7)
-			reversed = append(reversed, combined)
-		} else if !moreBytes {
-			reversed = append(reversed, currentByteWithoutContinuationBit)
-		}
-		previousByte = currentByteWithoutContinuationBit
-		currentByteIndex = currentByteIndex + 1
+func Decode(allBytes []byte) uint64 {
+	var accumulator = 0
+	var lowest7BitMask uint8 = 0x7f // 0b01111111 least significant 7 bits
+
+	for i := len(allBytes) - 1; i >= 0; i-- {
+		accumulator <<= 7
+		currentByte := allBytes[i]
+		lowestSevenBits := currentByte & lowest7BitMask
+		accumulator += int(lowestSevenBits)
 	}
-	return BtoI(reversed)
+	return uint64(accumulator)
 }
 
 func ReadBinaryFileToInteger(filename string) uint64 {

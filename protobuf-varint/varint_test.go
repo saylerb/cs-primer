@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 )
 
@@ -84,6 +85,16 @@ func TestEncodingVarint(t *testing.T) {
 		want := []byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01}
 		compareByteSlices(t, got, want)
 	})
+	t.Run("can encode 300 to protobuf varint", func(t *testing.T) {
+		got := Encode(300)
+		want := []byte{0xac, 0x02}
+		compareByteSlices(t, got, want)
+	})
+	t.Run("can encode 128 to protobuf varint", func(t *testing.T) {
+		got := Encode(128)
+		want := []byte{0x80, 0x01}
+		compareByteSlices(t, got, want)
+	})
 }
 
 func TestDecodingVarint(t *testing.T) {
@@ -105,7 +116,41 @@ func TestDecodingVarint(t *testing.T) {
 		got := Decode([]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01})
 		var want uint64 = 18446744073709551615
 		if got != want {
-			t.Errorf("got %q want %q", got, want)
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+	t.Run("can decode the number 300", func(t *testing.T) {
+		got := Decode([]byte{0xac, 0x02})
+		var want uint64 = 300
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+	t.Run("can decode the number 128", func(t *testing.T) {
+		got := Decode([]byte{0x80, 0x01})
+		var want uint64 = 128
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
+}
+
+func TestRoundTrip(t *testing.T) {
+	t.Run("can roundtrip encode/decode numbers 1 to ~1 billion", func(t *testing.T) {
+		// currently this takes a while ~ 2 minutes
+		var end uint64 = 1 << 30
+		var i uint64
+		fmt.Printf("roundtripping with numbers 1 to %v", end)
+		for i = 1; i <= end; i++ {
+			encoded := Encode(i)
+			decoded := Decode(encoded)
+
+			if i != decoded {
+				fmt.Printf("error with %v", i)
+
+				t.Errorf("got %v want %v", decoded, i)
+			}
 		}
 	})
 }
