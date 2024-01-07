@@ -28,13 +28,13 @@ func Encode(input uint64) []byte {
 	var buffer []byte
 
 	for input > 0 {
-		lowestSevenBits := uint8(input & bitMask)
+		sevenLeastSignificantBits := uint8(input & bitMask)
 		if input > bitMask {
 			var eighthBitOnMask uint8 = 0x80
-			withContinuationBit := lowestSevenBits | eighthBitOnMask
+			withContinuationBit := sevenLeastSignificantBits | eighthBitOnMask
 			buffer = append(buffer, withContinuationBit)
 		} else {
-			buffer = append(buffer, lowestSevenBits)
+			buffer = append(buffer, sevenLeastSignificantBits)
 		}
 		input = input >> 7
 	}
@@ -43,13 +43,13 @@ func Encode(input uint64) []byte {
 
 func Decode(allBytes []byte) uint64 {
 	var accumulator = 0
-	var lowest7BitMask uint8 = 0x7f // 0b01111111 least significant 7 bits
+	var sevenLeastSignificantBitsMask uint8 = 0x7f // 0b01111111 least significant 7 bits
 
 	for i := len(allBytes) - 1; i >= 0; i-- {
 		accumulator <<= 7
 		currentByte := allBytes[i]
-		lowestSevenBits := currentByte & lowest7BitMask
-		accumulator += int(lowestSevenBits)
+		sevenLeastSignificantBits := currentByte & sevenLeastSignificantBitsMask
+		accumulator += int(sevenLeastSignificantBits)
 	}
 	return uint64(accumulator)
 }
