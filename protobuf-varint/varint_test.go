@@ -136,24 +136,27 @@ func TestDecodingVarint(t *testing.T) {
 
 }
 
-func TestRoundTrip(t *testing.T) {
-	t.Run("can roundtrip encode/decode numbers 1 to ~1 billion", func(t *testing.T) {
-		// currently this takes a while ~ 2 minutes
-		var end uint64 = 1 << 30
-		var i uint64
-		fmt.Printf("roundtripping with numbers 1 to %v", end)
-		for i = 1; i <= end; i++ {
-			encoded := Encode(i)
-			decoded := Decode(encoded)
+func benchmarkRoundTrip(end uint64, b *testing.B) {
+	b.Run(fmt.Sprintf("can roundtrip encode/decode numbers 1 to %v", end), func(b *testing.B) {
+		for a := 0; a < b.N; a++ {
+			for i := uint64(1); i < end; i++ {
 
-			if i != decoded {
-				fmt.Printf("error with %v", i)
+				encoded := Encode(i)
+				decoded := Decode(encoded)
 
-				t.Errorf("got %v want %v", decoded, i)
+				if i != decoded {
+					fmt.Printf("error with %v", i)
+
+					b.Errorf("got %v want %v", decoded, i)
+				}
 			}
 		}
 	})
 }
+
+func BenchmarkRoundTrip1(b *testing.B)          { benchmarkRoundTrip(1, b) }
+func BenchmarkRoundTrip10000(b *testing.B)      { benchmarkRoundTrip(10000, b) }
+func BenchmarkRoundTrip10_000_000(b *testing.B) { benchmarkRoundTrip(10_000_000, b) }
 
 func compareByteSlices(t testing.TB, got, want []byte) {
 	t.Helper()
